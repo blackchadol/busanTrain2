@@ -1,3 +1,7 @@
+/*1-1 부산헹 1의 내용을 복제 후 #define 상수 추가 선언. 
+  1-2 함수작업시작, ascii art 인트로 작업과 사용자의 입력을 받는 작업을 함수로  */
+
+
 #include <stdio.h>
 #include <Windows.h>
 #include <stdlib.h>
@@ -25,14 +29,8 @@
 #define ACTION_PROVOKE 1
 #define ACTION_PULL
 
-int main(void)
+void AsciiArt(void)  //  ASCII art를 이용한 인트로 출력함수
 {
-
-	// 1. ASCII art를 이용한 인트로 작성
-
-
-
-
 	printf("                 ()\n");
 	printf("                 ()\n");
 	printf("                 ()       ____.______._____\n");
@@ -44,31 +42,68 @@ int main(void)
 
 	printf("                 TRAIN TO BUSAN\n");
 	printf("\n\n\n\n");
+}
+
+int getLenght(void)      //  기차길이 입력을 받는 함수
+{
+	int nInput;
+	while (1)
+	{
+		printf("train lenght(15~50)>>");
+		scanf_s("%d", &nInput);
+		if (nInput >= LEN_MIN && nInput <= LEN_MAX)
+		{
+			break;
+		}
+		
+	}
+	return nInput;
+}
+
+int getStamina(void)      // stm 입력을 받는 함수
+{
+	int nInput;
+	while(1)
+	{
+		printf("madongseok stamina(0~5)>>");
+		scanf_s("%d", &nInput);
+		if (nInput >= STM_MIN && nInput <= STM_MAX)
+		{
+			break;
+		}
+		
+	}
+	return nInput;
+}
+
+int getProb(void)      // 2. 확률 입력을 받는 함수
+{
+	int nInput;
+	while (1)
+	{
+		printf("percentile probability 'p'(10~90) >> ");
+		scanf_s("%d", &nInput);
+		if (nInput >= PROB_MIN && nInput <= PROB_MAX)
+		{
+			break;
+		}
+		
+	}
+	return nInput;
+}
 
 
-	Sleep(3000); // 인트로 3초 지속 후 프로그램 실행
-
-
+int main(void)
+{
+	AsciiArt(); // 1. ASCII ART 출력
 
 	//2. 사용자로부터 열차길이와 확률 입력.
 
-	int lenght = 0, prob = 0; // 열차길이 변수와 확률변수의 선언 및 초기화
+	int lenght = 0, prob = 0, stm = 0; // 열차길이, 확률, 스태미너 변수 선언 및 초기화.
 
-	printf("train length(15~50)>> ");
-	scanf_s("%d", &lenght);
-	if (lenght < LEN_MIN || lenght > LEN_MAX) // 기차길이의 최대값과 최소값 범위 지정 및 범위를 이탈할 시 프로그램 종료
-	{
-		printf("잘못된 입력입니다.\n");
-		return 0;
-	}
-
-	printf("percentile probability 'p'(10~90) >> ");
-	scanf_s("%d", &prob);
-	if (prob < PROB_MIN || prob > PROB_MAX) // 확률의 지정범위를 벗어나면 프로그램 종료
-	{
-		printf("잘못된 입력입니다.\n");
-		return 0;
-	}
+	lenght = getLenght();
+	stm = getStamina();
+	prob = getProb();
 
 	// 3. 입력받은 값을 이용하여 열차의 초기 상태 출력
 
