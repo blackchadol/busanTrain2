@@ -58,29 +58,46 @@ int verifyAggro(int aggro)
 
 }
 
-int getMmove(void) // 마동석의 move left 또는 move stay 입력을 받고 검증하는 함수
+int getMmove(int zLoc, int mLoc) // 마동석의 move left 또는 move stay 입력을 받고 검증하는 함수
 {
 	int move;
 	while (1)
 	{
-		printf("madongseok move(0:stay, 1:left)>> ");
-		scanf_s("%d", &move);
-
-		if (move == MOVE_LEFT || move == MOVE_STAY)
+		if (mLoc - zLoc == 1)
 		{
-			break;
-		}
+			printf("madongseok move(0:stay)>> ");
+			scanf_s("%d", &move);
+			if (move == MOVE_STAY)
+			{
+				break;
+			}
 
+			else
+			{
+				continue;
+			}
+		}
+		
 		else
 		{
-			continue;
+			printf("madongseok move(0:stay, 1:left)>> ");
+			scanf_s("%d", &move);
+
+			if (move == MOVE_LEFT || move == MOVE_STAY)
+			{
+				break;
+			}
+
+			else
+			{
+				continue;
+			}
 		}
 	}
 
 	return move;
 
 }
-
 
 
 
@@ -176,13 +193,36 @@ int main(void)
 
 	// 3.3 마동석 움직임 입력 및 위치 최신화 및 열차 재출력.
 		
-		mMove = getMmove();
+		mMove = getMmove(zLoc,mLoc);
 		mLoc -= mMove;
 		printTrain(cLoc, zLoc, mLoc, length);
 		printf("\n\n\n");
 
-		//3.4 마동석 위치 변화 및 
-		printf("madongseok : stay");
+
+		//3.4 마동석 위치 변화 및 어그로 스테미너 변화 출력
+		if (mMove == MOVE_LEFT)
+		{
+			++mAggro;
+			printf("madongseok %d -> %d",preMloc,mLoc);
+		}
+		else if (mMove == MOVE_STAY)
+		{
+			--mAggro;
+			printf("madongseok: stay %d", mLoc);
+		}
+
+		if (mAggro != premAggro)
+		{
+			printf("(aggro %d -> %d, stamina: %d)\n\n", premAggro, mAggro, stm);
+		}
+		else
+		{
+			printf("(aggro: %d, stamina: %d)\n\n", mAggro, stm);
+		}
+		
+
+		
+		
 		
 	}
 
