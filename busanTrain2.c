@@ -99,6 +99,15 @@ int getMmove(int zLoc, int mLoc) // 마동석의 move left 또는 move stay 입력을 받�
 
 }
 
+int verifyStamina(int stm)
+{
+	if (stm > STM_MAX)
+		--stm;
+	else if (stm < STM_MIN)
+		++stm;
+	return stm;
+}
+
 
 
 int main(void)
@@ -125,12 +134,16 @@ int main(void)
 
 	//3. 열차 이동 phase.
 	int turn = 0;
+	int preStm = stm;
 	int cAggro = 1;
 	int mAggro = 1;
 	int preZloc = zLoc, preCloc = cLoc, preMloc = mLoc;
 	int precAggro = cAggro, premAggro = mAggro;
 	int mMove; // 마동석의 move left or move stay 값을 담는 변수
+	int zombiePull = 0; // 마동석이 action pull 했는지 
+	int mAction = 0; // 마동석 행동 
 	srand((unsigned int)time(NULL));
+	
 	
 	while (1)
 	{
@@ -150,9 +163,12 @@ int main(void)
 		{
 			--cAggro;
 			cAggro = verifyAggro(cAggro);
-			if (turn != 0)
+			if (turn % 2 != 0 && zombiePull != 1) // 마동석이 PULL을 하지 않았을 때만 움직임. 
 			{
-				zLoc -= 1;
+				if (cAggro > mAggro && zLoc - cLoc != 1)
+					--zLoc;
+				else if(cAggro <= mAggro && mLoc - zLoc != 1)
+					++zLoc;
 			}
 		}
 
@@ -170,44 +186,57 @@ int main(void)
 			printf("citizens : stay %d  (aggro: %d -> %d)\n", cLoc, precAggro, cAggro);
 		}
 
-		if (zLoc == preZloc) //  좀비가 움직이지 않았을 때
+		if (zombiePull == 1) // 마동석이 좀비를 당겼으면
 		{
-			if (turn % 2 == 0) // 좀비가 움직이지 못하는 턴이면
-			{
-
-				printf("zombie stay %d (cannot move)\n", zLoc);
-				putchar('\n');
-			}
-			else // 좀비가 움직일 수 있는 턴에 못 움직이면
-			{
-
-				printf("zombie stay %d\n", zLoc);
-				putchar('\n');
-			}
-		}
-		else // 좀비가 움직였으면
-		{
-			printf("zombie: %d -> %d\n", preZloc, zLoc);
+			printf("zombie stay %d (cannot move >> madongseok pulled)\n", zLoc);
 			putchar('\n');
+		}
+
+		else
+		{
+			if (zLoc == preZloc) //  좀비가 움직이지 않았을 때
+			{
+				if (turn % 2 == 0) // 좀비가 움직이지 못하는 턴이면
+				{
+
+					printf("zombie stay %d (cannot move)\n", zLoc);
+					putchar('\n');
+				}
+				else // 좀비가 움직일 수 있는 턴에 못 움직이면
+				{
+
+					printf("zombie stay %d\n", zLoc);
+					putchar('\n');
+				}
+			}
+			else // 좀비가 움직였으면
+			{
+				printf("zombie: %d -> %d\n", preZloc, zLoc);
+				putchar('\n');
+			}
 		}
 
 	// 3.3 마동석 움직임 입력 및 위치 최신화 및 열차 재출력.
 		
 		mMove = getMmove(zLoc,mLoc);
 		mLoc -= mMove;
+		printf("\n\n");
 		printTrain(cLoc, zLoc, mLoc, length);
 		printf("\n\n\n");
 
 
-		//3.4 마동석 위치 변화 및 어그로 스테미너 변화 출력
+
+    //3.4 마동석 위치 변화 및 어그로 스테미너 변화 출력
 		if (mMove == MOVE_LEFT)
 		{
 			++mAggro;
+			mAggro = verifyAggro(mAggro);
 			printf("madongseok %d -> %d",preMloc,mLoc);
 		}
 		else if (mMove == MOVE_STAY)
 		{
 			--mAggro;
+			mAggro = verifyAggro(mAggro);
 			printf("madongseok: stay %d", mLoc);
 		}
 
@@ -219,13 +248,159 @@ int main(void)
 		{
 			printf("(aggro: %d, stamina: %d)\n\n", mAggro, stm);
 		}
-		
 
+		premAggro = mAggro, precAggro = cAggro;
 		
+		//4. 행동 phase 
+
+		// 4.1 시민 행동 phase
+		if (cLoc == 1)
+		{
+			printf("YOU WIN! citizen(s) escaped to the next train!!");
+			break;
+		}
+		else
+		{
+			printf("citidens does nothing\n");
+		}
+
+	
+	
+
+		//4.2 좀비행동
+
+		if (zLoc - cLoc == 1)//좀비와 사람 인접
+		{
+			if (mLoc - zLoc == 1)// 마동석도 동시에 인접
+			{
+				if (cAggro > mAggro)// C 어그로가 M 어그로보다 높으면 게임오버
+				{
+					printf("GAME OVER! Citizen(s) has(have) been attacked by a zombie\n");
+				}
+
+				else// 마동석 공격
+				{
+					--stm;
+					printf("Zombie attacked madongseok (aggro: %d vs %d, madongseok stamina: %d->%d)\n",cAggro,mAggro,preStm,stm);
+					if (stm == STM_MIN)
+					{
+						printf("GAME OVER!. madongseok killed by zombie");
+						break;
+					}
+				}
+			}
+			else
+			{
+				printf("GAME OVER! Citizen(s) has(have) been attacked by a zombie\n");
+			}
+		}
+
+		else if (mLoc - zLoc == 1) // 좀비가 마동석 공격
+		{
+			--stm;
+			printf("Zombie attacked madongseok (madongseok stamina: %d->%d)\n", preStm, stm);
+			if (stm == STM_MIN)
+			{
+				printf("GAME OVER!. madongseok killed by zombie");
+				break;
+			}
+
+
+		}
+
+		else
+		{
+			printf("zombie attacked nobody\n");
+		}
+	
+		preStm = stm;
+
+		//4.3 마동석 행동
+	
+		if (mLoc - zLoc != 1) // 인접하지 않다면
+		{
+			while (1) 
+			{
+				printf("madongseok action (0.rest 1.provoke)>> ");
+				scanf_s("%d", &mAction);
+				if (mAction == ACTION_REST || mAction || ACTION_PROVOKE)
+				{
+					break;
+				}
+			}
+
+		}
+
+		else // 인접하면
+		{
+			while (1)
+			{
+				printf("madongseok action (0.rest 1.provoke, 2.pull)>> ");
+				scanf_s("%d", &mAction);
+				if (mAction == ACTION_REST || mAction || ACTION_PROVOKE || mAction == ACTION_PULL)
+				{
+					break;
+				}
+			}
+			printf("\n\n");
+
+		}
+		switch (mAction)
+		{
+		case ACTION_REST:
+		{
+			--mAggro;
+			mAggro = verifyAggro(mAggro);
+			++stm;
+			stm = verifyStamina(stm);
+			printf("madongseok rests...\n");
+			printf("madongseok: %d (aggro %d -> %d, stamina: %d -> %d)\n", mLoc, premAggro, mAggro, preStm, stm);
+			zombiePull = 0;
+			break;
+		}
+		case ACTION_PROVOKE:
+		{
+			mAggro = AGGRO_MAX;
+			printf("madongseok provoked zombie...\n");
+			printf("madongseok: %d (aggro %d -> %d, stamina: %d)\n", mLoc, premAggro, mAggro,stm);
+			zombiePull = 0;
+			break;
+		}
+		case ACTION_PULL:
+		{
+			mAggro += 2;
+			mAggro = verifyAggro(mAggro);
+			--stm;
+			stm = verifyStamina(stm);
+			
+			int randomNum = rand() % 100;
+			if (100 - prob > randomNum)
+			{
+				printf("madongseok pulled zombie... Next turn, it can't move\n");
+				zombiePull = 1;
+				
+			}
+			else
+			{
+				printf("madongseok failed to pull zombie\n");
+				zombiePull = 0;
+			}
+			printf("madongseok: %d (aggro %d -> %d, stamina: %d -> %d)\n", mLoc, premAggro, mAggro, preStm, stm);
+			break;
+		}
+		}
+
+		printf("\n\n\n");
+		//4.5 이전 값 저장 변수에 현재 값 대입
 		
+		preMloc = mLoc, preCloc = cLoc;
+		premAggro = mAggro, precAggro = cAggro;
+		preStm = stm;
+
 		
 	}
 
+	return 0;
 
 //	int h = 0; // (c가 이동하기 위해 공백을 줄이는 변수 h을 선언)
 //	int z = 0; // (좀비가 이동하기 위해 공백을 줄이는 변수 z를 선언 
