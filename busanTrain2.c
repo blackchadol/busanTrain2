@@ -2,11 +2,14 @@
   1-2 함수작업시작, ascii art 인트로 작업과 사용자의 입력을 받는 작업을 함수로
   1-3 열차 상태 전역배열 선언 및 'C'와 'Z', 'M'의 위치로 열차를 출력해주는 함수 제작  */
 
+/*2-1 난수생성 구문추가 및 1에서 제작한 함수 정의를 main 함수 아랫단으로 옮김.
+  2-2 100-p의 확률과 그 외의 경우를 확인하고 열차상태 출력*/
+
 
 #include <stdio.h>
 #include <Windows.h>
 #include <stdlib.h>
-#include <string.h>
+#include <time.h>
 // 상수선언
 #define LEN_MIN 15 // 기차길이
 #define LEN_MAX 50
@@ -33,108 +36,21 @@
 
 char g_trainList[LEN_MAX + 1]; // 문자열의 마지막은 NULL이기 때문에 +1
 
+void AsciiArt(void);
+int getLenght(void);
+int getStamina(void);
+int getProb(void);
+void printTrain(int,int,int,int);
 
-
-void AsciiArt(void)  //  ASCII art를 이용한 인트로 출력함수
-{
-	printf("                 ()\n");
-	printf("                 ()\n");
-	printf("                 ()       ____.______._____\n");
-	printf("	      .--.  ---- - | _ - a:f - |\n");
-	printf("	  __ || ___ | [_]| |. | #  | .[].[].[].. |\n");
-	printf("	   o)__ | _ | .. |= | _ | -| ___________ |\n");
-	printf("	  __ < (__(*)_(*)_~_____~(*)____(*)_____\n");
-	printf("          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
-
-	printf("                 TRAIN TO BUSAN\n");
-	printf("\n\n\n\n");
-}
-
-int getLenght(void)      //  기차길이 입력을 받는 함수
-{
-	int nInput;
-	while (1)
-	{
-		printf("train lenght(15~50)>>");
-		scanf_s("%d", &nInput);
-		if (nInput >= LEN_MIN && nInput <= LEN_MAX)
-		{
-			break;
-		}
-		
-	}
-	return nInput;
-}
-
-int getStamina(void)      // stm 입력을 받는 함수
-{
-	int nInput;
-	while(1)
-	{
-		printf("madongseok stamina(0~5)>>");
-		scanf_s("%d", &nInput);
-		if (nInput >= STM_MIN && nInput <= STM_MAX)
-		{
-			break;
-		}
-		
-	}
-	return nInput;
-}
-
-int getProb(void)      //  확률 입력을 받는 함수
-{
-	int nInput;
-	while (1)
-	{
-		printf("percentile probability 'p'(10~90) >> ");
-		scanf_s("%d", &nInput);
-		if (nInput >= PROB_MIN && nInput <= PROB_MAX)
-		{
-			break;
-		}
-		
-	}
-	return nInput;
-}
-
-void printTrain(int cLoc, int zLoc, int mLoc, int length) // 열차상태 출력함수
-{
-
-	for (int k = 0; k < length+1; k++)
-	{
-		g_trainList[k] = ' '; 
-	}
-	g_trainList[length] = '\0';
-
-	for (int i = 0; i < 3; i++)
-	{
-		if (i == 1)
-		{
-			g_trainList[0] = '#';
-			g_trainList[length - 1] = '#';
-			g_trainList[cLoc] = 'C';
-			g_trainList[zLoc] = 'Z';
-			g_trainList[mLoc] = 'M';	
-			printf("%s\n", g_trainList);
-		}
-
-		else
-		{
-			for (int j = 0; j < length; j++)
-			{
-				putchar('#');
-			}
-			putchar('\n');
-		}
-	}
-}
 
 
 int main(void)
 {
-	AsciiArt(); // 1. ASCII ART 출력
+	
+	// 1. ASCII ART 출력
+	AsciiArt(); 
 
+	// 2. 사용자 입력 받기 및 열차상태출력
 	int length = 0, prob = 0, stm = 0; // 열차길이, 확률, 스태미너 변수 선언 및 초기화.
 	int cLoc, zLoc, mLoc;
 
@@ -148,41 +64,36 @@ int main(void)
 
 	printTrain(cLoc, zLoc, mLoc, length);
 
+	printf("\n\n\n");
 
-//	// 3. 입력받은 값을 이용하여 열차의 초기 상태 출력
-//
-//	// 1열, 3열은 #을 length 수 만큼 출력 
-//	for (int i = 0; i < 3; ++i)
-//	{
-//
-//		if (i == 1) // 2열은 #하나 length - 7 만큼의 빈칸 C 빈칸2개 Z M # 순서로 출력
-//		{
-//			putchar('#');
-//			for (int k = 0; k < (lenght - 7); k++)
-//			{
-//				putchar(' ');
-//			}
-//			putchar('C');
-//			printf("  ");
-//			putchar('Z');
-//			putchar('M');
-//			putchar('#');
-//			putchar('\n');
-//		}
-//		else {
-//			for (int j = 0; j < lenght; ++j)
-//			{
-//				putchar('#');
-//			}
-//
-//			putchar('\n');
-//		}
-//	}
-//
-//	putchar('\n');
-////
-////	Sleep(2000);
-////
+	//3. 열차 이동 phase.
+	int turn = 0;
+	int cAggro = 1;
+	int mAggro = 1;
+	int preZloc = zLoc, preCloc = cLoc;
+	srand((unsigned int)time(NULL));
+	
+	while (1)
+	{
+		++turn; //1턴부터 시작. 
+		int rNum = rand() % 100; // 0~99까지의 난수를 저장하는 변수
+
+		if (100 - prob > rNum)
+		{
+			cLoc -= 1;
+		}
+
+		else
+		{
+			zLoc -= 1;
+		}
+
+		printTrain(cLoc, zLoc, mLoc, length);
+		printf("\n\n");
+
+	}
+
+
 //	int h = 0; // (c가 이동하기 위해 공백을 줄이는 변수 h을 선언)
 //	int z = 0; // (좀비가 이동하기 위해 공백을 줄이는 변수 z를 선언 
 //	int turn = 0; // 좀비가 움직이는 턴 확인을 위한 변수
@@ -331,3 +242,99 @@ int main(void)
 //
 // 	return 0;
  }
+
+ void AsciiArt(void)  //  ASCII art를 이용한 인트로 출력함수
+ {
+	 printf("                 ()\n");
+	 printf("                 ()\n");
+	 printf("                 ()       ____.______._____\n");
+	 printf("	      .--.  ---- - | _ - a:f - |\n");
+	 printf("	  __ || ___ | [_]| |. | #  | .[].[].[].. |\n");
+	 printf("	   o)__ | _ | .. |= | _ | -| ___________ |\n");
+	 printf("	  __ < (__(*)_(*)_~_____~(*)____(*)_____\n");
+	 printf("          ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~\n");
+
+	 printf("                 TRAIN TO BUSAN\n");
+	 printf("\n\n\n\n");
+ }
+
+ int getLenght(void)      //  기차길이 입력을 받는 함수
+ {
+	 int nInput;
+	 while (1)
+	 {
+		 printf("train lenght(15~50)>>");
+		 scanf_s("%d", &nInput);
+		 if (nInput >= LEN_MIN && nInput <= LEN_MAX)
+		 {
+			 break;
+		 }
+
+	 }
+	 return nInput;
+ }
+
+ int getStamina(void)      // stm 입력을 받는 함수
+ {
+	 int nInput;
+	 while (1)
+	 {
+		 printf("madongseok stamina(0~5)>>");
+		 scanf_s("%d", &nInput);
+		 if (nInput >= STM_MIN && nInput <= STM_MAX)
+		 {
+			 break;
+		 }
+
+	 }
+	 return nInput;
+ }
+
+ int getProb(void)      //  확률 입력을 받는 함수
+ {
+	 int nInput;
+	 while (1)
+	 {
+		 printf("percentile probability 'p'(10~90) >> ");
+		 scanf_s("%d", &nInput);
+		 if (nInput >= PROB_MIN && nInput <= PROB_MAX)
+		 {
+			 break;
+		 }
+
+	 }
+	 return nInput;
+ }
+
+ void printTrain(int cLoc, int zLoc, int mLoc, int length) // 열차상태 출력함수
+ {
+
+	 for (int k = 0; k < length + 1; k++)
+	 {
+		 g_trainList[k] = ' ';
+	 }
+	 g_trainList[length] = '\0';
+
+	 for (int i = 0; i < 3; i++)
+	 {
+		 if (i == 1)
+		 {
+			 g_trainList[0] = '#';
+			 g_trainList[length - 1] = '#';
+			 g_trainList[cLoc] = 'C';
+			 g_trainList[zLoc] = 'Z';
+			 g_trainList[mLoc] = 'M';
+			 printf("%s\n", g_trainList);
+		 }
+
+		 else
+		 {
+			 for (int j = 0; j < length; j++)
+			 {
+				 putchar('#');
+			 }
+			 putchar('\n');
+		 }
+	 }
+ }
+
