@@ -4,7 +4,14 @@
 
 /*2-1 난수생성 구문추가 및 1에서 제작한 함수 정의를 main 함수 아랫단으로 옮김.
   2-2 100-p의 확률과 그 외의 경우를 확인하고 열차상태 출력
-  2-3 aggro 값 검증 함수 추가*/
+  2-3 aggro 값 검증 및 stm 값 검증 함수 추가
+  2-4 마동석 위치 변화 및 aggro, stamina 변화 출력
+  
+  3-1 시민행동 추가(cLoc == 1일때 반복문 break 및 아웃트로 출력)
+  3-2 좀비행동 추가(사람과 인접할 때, 마동석과 인접할 때 , 둘다 인접할 때를 나누어 코드작성
+  3-3 마동석 행동추가(사용자의 입력별 case를 나누어 값 처리 및 출력
+  3-4 이전 위치변수들 초기화 및 루프 재시작
+  */
 
 
 #include <stdio.h>
@@ -217,13 +224,13 @@ int main(void)
 
 	// 2. 사용자 입력 받기 및 열차상태출력
 	int length = 0, prob = 0, stm = 0; // 열차길이, 확률, 스태미너 변수 선언 및 초기화.
-	int cLoc, zLoc, mLoc;
+	int cLoc, zLoc, mLoc; // 시민,좀비,마동석 위치변수
 
 	length = getLenght();
 	stm = getStamina();
 	prob = getProb();
 
-	cLoc = length - 6;
+	cLoc = length - 6; // 각 주체별 위치 초기화
 	zLoc = length - 3;
 	mLoc = length - 2;
 
@@ -233,11 +240,11 @@ int main(void)
 
 	//3. 열차 이동 phase.
 	int turn = 0;
-	int preStm = stm;
+	int preStm = stm; // 이전 스테미너 값 저장
 	int cAggro = 1;
 	int mAggro = 1;
-	int preZloc = zLoc, preCloc = cLoc, preMloc = mLoc;
-	int precAggro = cAggro, premAggro = mAggro;
+	int preZloc = zLoc, preCloc = cLoc, preMloc = mLoc; // 이전 위치값 저장 변수
+	int precAggro = cAggro, premAggro = mAggro; // 이전 
 	int mMove; // 마동석의 move left or move stay 값을 담는 변수
 	int zombiePull = 0; // 마동석이 action pull 했는지 
 	int mAction = 0; // 마동석 행동 
@@ -348,7 +355,7 @@ int main(void)
 			printf("(aggro: %d, stamina: %d)\n\n", mAggro, stm);
 		}
 
-		premAggro = mAggro, precAggro = cAggro;
+		premAggro = mAggro, precAggro = cAggro; // 이 구문 이후에 어그로 값이 또 바뀌기 때문에 값 초기화
 
 		//4. 행동 phase 
 
@@ -412,7 +419,7 @@ int main(void)
 			printf("zombie attacked nobody\n");
 		}
 
-		preStm = stm;
+		preStm = stm; // 이후에 stm 값이 바뀌기 때문에 초기화 
 
 		//4.3 마동석 행동
 
@@ -490,6 +497,7 @@ int main(void)
 		}
 
 		printf("\n\n\n");
+
 		//4.5 이전 값 저장 변수에 현재 값 대입
 
 		preMloc = mLoc, preCloc = cLoc, preZloc = zLoc;
