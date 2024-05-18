@@ -3,7 +3,8 @@
   1-3 열차 상태 전역배열 선언 및 'C'와 'Z', 'M'의 위치로 열차를 출력해주는 함수 제작  */
 
 /*2-1 난수생성 구문추가 및 1에서 제작한 함수 정의를 main 함수 아랫단으로 옮김.
-  2-2 100-p의 확률과 그 외의 경우를 확인하고 열차상태 출력*/
+  2-2 100-p의 확률과 그 외의 경우를 확인하고 열차상태 출력
+  2-3 aggro 값 검증 함수 추가*/
 
 
 #include <stdio.h>
@@ -41,6 +42,45 @@ int getLenght(void);
 int getStamina(void);
 int getProb(void);
 void printTrain(int,int,int,int);
+int verifyAggro(int aggro)
+{
+	if (aggro > AGGRO_MAX)
+	{
+		aggro -= 1;
+	}
+
+	else if (aggro < 0)
+	{
+		aggro += 1;
+	}
+
+	return aggro;
+
+}
+
+int getMmove(void) // 마동석의 move left 또는 move stay 입력을 받고 검증하는 함수
+{
+	int move;
+	while (1)
+	{
+		printf("madongseok move(0:stay, 1:left)>> ");
+		scanf_s("%d", &move);
+
+		if (move == MOVE_LEFT || move == MOVE_STAY)
+		{
+			break;
+		}
+
+		else
+		{
+			continue;
+		}
+	}
+
+	return move;
+
+}
+
 
 
 
@@ -70,7 +110,9 @@ int main(void)
 	int turn = 0;
 	int cAggro = 1;
 	int mAggro = 1;
-	int preZloc = zLoc, preCloc = cLoc;
+	int preZloc = zLoc, preCloc = cLoc, preMloc = mLoc;
+	int precAggro = cAggro, premAggro = mAggro;
+	int mMove; // 마동석의 move left or move stay 값을 담는 변수
 	srand((unsigned int)time(NULL));
 	
 	while (1)
@@ -78,19 +120,70 @@ int main(void)
 		++turn; //1턴부터 시작. 
 		int rNum = rand() % 100; // 0~99까지의 난수를 저장하는 변수
 
-		if (100 - prob > rNum)
+		//3.1 확률별로 시민위치, 좀비위치 최신화 및 열차 상태 출력//
+		if (100 - prob > rNum) // 100 - p의 확률
 		{
 			cLoc -= 1;
+			++cAggro;
+			cAggro = verifyAggro(cAggro);
+
 		}
 
-		else
+		else // p의 확률
 		{
-			zLoc -= 1;
+			--cAggro;
+			cAggro = verifyAggro(cAggro);
+			if (turn != 0)
+			{
+				zLoc -= 1;
+			}
 		}
 
 		printTrain(cLoc, zLoc, mLoc, length);
 		printf("\n\n");
 
+		//3.2 변화된 시민과 좀비의 위치와 어그로를 기반으로 결과 출력//
+		if (cLoc != preCloc) //사람이 움직였으면
+		{
+			printf("citizen: %d -> %d  (aggro: %d -> %d)\n", preCloc, cLoc, precAggro, cAggro);
+		}
+
+		else // 사람이 움직이지 않았으면
+		{
+			printf("citizens : stay %d  (aggro: %d -> %d)\n", cLoc, precAggro, cAggro);
+		}
+
+		if (zLoc == preZloc) //  좀비가 움직이지 않았을 때
+		{
+			if (turn % 2 == 0) // 좀비가 움직이지 못하는 턴이면
+			{
+
+				printf("zombie stay %d (cannot move)\n", zLoc);
+				putchar('\n');
+			}
+			else // 좀비가 움직일 수 있는 턴에 못 움직이면
+			{
+
+				printf("zombie stay %d\n", zLoc);
+				putchar('\n');
+			}
+		}
+		else // 좀비가 움직였으면
+		{
+			printf("zombie: %d -> %d\n", preZloc, zLoc);
+			putchar('\n');
+		}
+
+	// 3.3 마동석 움직임 입력 및 위치 최신화 및 열차 재출력.
+		
+		mMove = getMmove();
+		mLoc -= mMove;
+		printTrain(cLoc, zLoc, mLoc, length);
+		printf("\n\n\n");
+
+		//3.4 마동석 위치 변화 및 
+		printf("madongseok : stay");
+		
 	}
 
 
@@ -178,42 +271,42 @@ int main(void)
 //		cLoc = cSpos - h;
 //
 //
-//		if (cLoc != preCloc) //사람이 움직였으면
-//		{
-//
-//			printf("citizen: %d -> %d\n", preCloc, cLoc);
-//
-//		}
-//
-//		else // 사람이 움직이지 않았으면
-//		{
-//
-//			printf("citizens : stay %d\n", cLoc);
-//
-//
-//		}
-//
-//		if (zLoc == preZloc) //  좀비가 움직이지 않았을 때
-//		{
-//			if (turn % 2 == 0) // 좀비가 움직이지 못하는 턴이면
-//			{
-//
-//				printf("zombie stay %d (cannot move)\n", zLoc);
-//				putchar('\n');
-//			}
-//			else // 좀비가 움직일 수 있는 턴에 못 움직이면
-//			{
-//
-//				printf("zombie stay %d\n", zLoc);
-//				putchar('\n');
-//			}
-//		}
-//		else // 좀비가 움직였으면
-//		{
-//			printf("zombie: %d -> %d\n", preZloc, zLoc);
-//			putchar('\n');
-//		}
-//
+		//if (cLoc != preCloc) //사람이 움직였으면
+		//{
+
+		//	printf("citizen: %d -> %d\n", preCloc, cLoc);
+
+		//}
+
+		//else // 사람이 움직이지 않았으면
+		//{
+
+		//	printf("citizens : stay %d\n", cLoc);
+
+
+		//}
+
+		//if (zLoc == preZloc) //  좀비가 움직이지 않았을 때
+		//{
+		//	if (turn % 2 == 0) // 좀비가 움직이지 못하는 턴이면
+		//	{
+
+		//		printf("zombie stay %d (cannot move)\n", zLoc);
+		//		putchar('\n');
+		//	}
+		//	else // 좀비가 움직일 수 있는 턴에 못 움직이면
+		//	{
+
+		//		printf("zombie stay %d\n", zLoc);
+		//		putchar('\n');
+		//	}
+		//}
+		//else // 좀비가 움직였으면
+		//{
+		//	printf("zombie: %d -> %d\n", preZloc, zLoc);
+		//	putchar('\n');
+		//}
+
 //		preCloc = cLoc; // 다음 턴에 사용하기 위해 이전위치 변수 최신화 
 //		preZloc = zLoc;
 //
