@@ -264,9 +264,9 @@ int main(void)
 			cAggro = verifyAggro(cAggro);
 			if (turn % 2 != 0 && zombiePull != 1) // 홀수턴에 마동석이 PULL을 하지 않았을 때만 움직임. 
 			{
-				if (cAggro > mAggro && zLoc - cLoc != 1)// 시민의 어그로가 더 높지만 인접하지 않을 때 시민쪽으로 움직임
+				if (cAggro >= mAggro && zLoc - cLoc != 1)// 시민의 어그로가 더 높지만 인접하지 않을 때 시민쪽으로 움직임
 					--zLoc;
-				else if (cAggro <= mAggro && mLoc - zLoc != 1) // 마동석의 어그로가 더 높지만 인접하지 않을 때 마동석 쪽으로 움직임.
+				else if (cAggro < mAggro && mLoc - zLoc != 1) // 마동석의 어그로가 더 높지만 인접하지 않을 때 마동석 쪽으로 움직임.
 					++zLoc;
 			}
 		}
@@ -360,7 +360,7 @@ int main(void)
 		}
 		else
 		{
-			printf("citidens does nothing\n");
+			printf("citizens does nothing\n");
 		}
 
 
