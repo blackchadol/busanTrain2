@@ -11,6 +11,9 @@
   3-2 좀비행동 추가(사람과 인접할 때, 마동석과 인접할 때 , 둘다 인접할 때를 나누어 코드작성
   3-3 마동석 행동추가(사용자의 입력별 case를 나누어 값 처리 및 출력
   3-4 이전 위치변수들 초기화 및 루프 재시작
+
+  ++ 4.1. 마동석의 aggro와 stm이 변화하는 경우마다 출력 값을 똑같이 하니 AGGRO_MIN보다 낮은 값으로 안 내려가서 
+  값의 변화가 없을 때 출력이 되서 이 값의 변화를 검증한 후 출력하는 함수 추가
   */
 
 
@@ -52,6 +55,7 @@ void printTrain(int,int,int,int);
 int verifyAggro(int);
 int verifyStamina(int);
 int getMmove(int, int);
+void printAggroStm(int premAggro, int mAggro, int prestm, int stm);
 
 void AsciiArt(void)  //  ASCII art를 이용한 인트로 출력함수
 {
@@ -154,7 +158,7 @@ int verifyAggro(int aggro)
 		aggro -= 1;
 	}
 
-	else if (aggro < 0)
+	else if (aggro < AGGRO_MIN)
 	{
 		aggro += 1;
 	}
@@ -213,12 +217,33 @@ int verifyStamina(int stm)
 	return stm;
 }
 
+void printAggroStm(int premAggro, int mAggro, int prestm, int stm) // 어그로와 stamina의 변화를 기준으로 출력해주는 함수(최댓값, 최솟값에서는 더이상 변화하지 않는 값이어서 필요)
+{
+	if (premAggro != mAggro)
+	{
+		printf("(aggro %d -> %d, ",premAggro,mAggro);
+	}
+
+	else
+	{
+		printf("(aggro %d, ", mAggro);
+	}
+
+	if (prestm != stm)
+	{
+		printf("stamina %d -> %d)\n", prestm, stm);
+	}
+	else
+	{
+		printf("stamina %d)\n", stm);
+	}
+}
 
 
 
 int main(void)
 {
-
+	srand((unsigned int)time(NULL));
 	// 1. ASCII ART 출력
 	AsciiArt();
 
@@ -234,7 +259,7 @@ int main(void)
 	zLoc = length - 3;
 	mLoc = length - 2;
 
-	printTrain(cLoc, zLoc, mLoc, length);
+	printTrain(cLoc, zLoc, mLoc, length); // 초기 열차 출력
 
 	printf("\n\n\n");
 
@@ -246,9 +271,9 @@ int main(void)
 	int preZloc = zLoc, preCloc = cLoc, preMloc = mLoc; // 이전 위치값 저장 변수
 	int precAggro = cAggro, premAggro = mAggro; // 이전 
 	int mMove; // 마동석의 move left or move stay 값을 담는 변수
-	int zombiePull = 0; // 마동석이 action pull 했는지 
+	int zombiePull = 0; // 마동석이 action pull 했는지  여부 0 or 1로 저장.
 	int mAction = 0; // 마동석 행동 
-	srand((unsigned int)time(NULL));
+	
 
 
 	while (1)
@@ -289,7 +314,7 @@ int main(void)
 
 		else // 사람이 움직이지 않았으면
 		{
-			printf("citizens : stay %d  (aggro: %d -> %d)\n", cLoc, precAggro, cAggro);
+			printf("citizens : stay %d  (aggro: %d)\n", cLoc, cAggro);
 		}
 
 		if (zombiePull == 1) // 마동석이 좀비를 당겼으면
@@ -460,7 +485,8 @@ int main(void)
 			++stm;
 			stm = verifyStamina(stm);
 			printf("madongseok rests...\n");
-			printf("madongseok: %d (aggro %d -> %d, stamina: %d -> %d)\n", mLoc, premAggro, mAggro, preStm, stm);
+			printf("madongseok: %d ", mLoc);
+			printAggroStm(premAggro, mAggro, preStm, stm);
 			zombiePull = 0;
 			break;
 		}
@@ -468,7 +494,8 @@ int main(void)
 		{
 			mAggro = AGGRO_MAX;
 			printf("madongseok provoked zombie...\n");
-			printf("madongseok: %d (aggro %d -> %d, stamina: %d)\n", mLoc, premAggro, mAggro, stm);
+			printf("madongseok: %d ", mLoc);
+			printAggroStm(premAggro, mAggro, preStm, stm);
 			zombiePull = 0;
 			break;
 		}
@@ -491,7 +518,8 @@ int main(void)
 				printf("madongseok failed to pull zombie\n");
 				zombiePull = 0;
 			}
-			printf("madongseok: %d (aggro %d -> %d, stamina: %d -> %d)\n", mLoc, premAggro, mAggro, preStm, stm);
+			printf("madongseok: %d ", mLoc);
+			printAggroStm(premAggro, mAggro, preStm, stm);
 			break;
 		}
 		}
