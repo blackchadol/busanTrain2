@@ -454,7 +454,7 @@ int main(void)
 			{
 				printf("madongseok action (0.rest 1.provoke)>> ");
 				scanf_s("%d", &mAction);
-				if (mAction == ACTION_REST || mAction || ACTION_PROVOKE)
+				if (mAction == ACTION_REST || mAction == ACTION_PROVOKE)
 				{
 					break;
 				}
@@ -468,7 +468,7 @@ int main(void)
 			{
 				printf("madongseok action (0.rest 1.provoke, 2.pull)>> ");
 				scanf_s("%d", &mAction);
-				if (mAction == ACTION_REST || mAction || ACTION_PROVOKE || mAction == ACTION_PULL)
+				if (mAction == ACTION_REST || mAction == ACTION_PROVOKE || mAction == ACTION_PULL)
 				{
 					break;
 				}
