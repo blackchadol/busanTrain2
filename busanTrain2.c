@@ -154,14 +154,14 @@ void printTrain(int cLoc, int zLoc, int mLoc, int length) // 열차상태 출력함수
 }
 int verifyAggro(int aggro)
 {
-	if (aggro > AGGRO_MAX)
+	if (aggro >= AGGRO_MAX)
 	{
-		aggro -= 1;
+		aggro = AGGRO_MAX;
 	}
 
-	else if (aggro < AGGRO_MIN)
+	else if (aggro <= AGGRO_MIN)
 	{
-		aggro += 1;
+		aggro = AGGRO_MIN;
 	}
 
 	return aggro;
@@ -211,10 +211,14 @@ int getMmove(int zLoc, int mLoc) // 마동석의 move left 또는 move stay 입력을 받�
 
 int verifyStamina(int stm)
 {
-	if (stm > STM_MAX)
-		--stm;
-	else if (stm < STM_MIN)
-		++stm;
+	if (stm >= STM_MAX)
+	{
+		stm = STM_MAX;
+	}
+	else if (stm <= STM_MIN)
+	{
+		stm = STM_MIN;
+	}
 	return stm;
 }
 
@@ -430,12 +434,12 @@ int main(void)
 					--stm;
 					if (stm <= STM_MIN)
 					{
-						verifyStamina(stm);
+						stm = verifyStamina(stm);
 						printf("Zombie attacked madongseok (aggro: %d vs %d, madongseok stamina: %d)\n", cAggro, mAggro, stm);
 					}
 					else 
 					{
-						verifyStamina(stm);
+						stm = verifyStamina(stm);
 						printf("Zombie attacked madongseok (aggro: %d vs %d, madongseok stamina: %d->%d)\n", cAggro, mAggro, preStm, stm);
 					}
 					if (stm == STM_MIN)
@@ -456,12 +460,12 @@ int main(void)
 			--stm;
 			if (stm <= STM_MIN)
 			{
-				verifyStamina(stm);
+				stm = verifyStamina(stm);
 				printf("Zombie attacked madongseok (madongseok stamina: %d)\n", stm);
 			}
 			else
 			{
-				verifyStamina(stm);
+				stm = verifyStamina(stm);
 				printf("Zombie attacked madongseok (madongseok stamina: %d->%d)\n", preStm, stm);
 			}
 			if (stm == STM_MIN)
