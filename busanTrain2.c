@@ -428,7 +428,16 @@ int main(void)
 				else// 마동석 공격
 				{
 					--stm;
-					printf("Zombie attacked madongseok (aggro: %d vs %d, madongseok stamina: %d->%d)\n", cAggro, mAggro, preStm, stm);
+					if (stm <= STM_MIN)
+					{
+						verifyStamina(stm);
+						printf("Zombie attacked madongseok (aggro: %d vs %d, madongseok stamina: %d)\n", cAggro, mAggro, stm);
+					}
+					else 
+					{
+						verifyStamina(stm);
+						printf("Zombie attacked madongseok (aggro: %d vs %d, madongseok stamina: %d->%d)\n", cAggro, mAggro, preStm, stm);
+					}
 					if (stm == STM_MIN)
 					{
 						printf("GAME OVER!. madongseok killed by zombie");
@@ -445,14 +454,21 @@ int main(void)
 		else if (mLoc - zLoc == 1) // 좀비가 마동석 공격
 		{
 			--stm;
-			printf("Zombie attacked madongseok (madongseok stamina: %d->%d)\n", preStm, stm);
+			if (stm <= STM_MIN)
+			{
+				verifyStamina(stm);
+				printf("Zombie attacked madongseok (madongseok stamina: %d)\n", stm);
+			}
+			else
+			{
+				verifyStamina(stm);
+				printf("Zombie attacked madongseok (madongseok stamina: %d->%d)\n", preStm, stm);
+			}
 			if (stm == STM_MIN)
 			{
 				printf("GAME OVER!. madongseok killed by zombie");
 				break;
 			}
-
-
 		}
 
 		else
