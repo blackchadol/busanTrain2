@@ -45,6 +45,7 @@
 #define ACTION_PROVOKE 1
 #define ACTION_PULL 2
 
+// 열차배열 선언. 
 char g_trainList[LEN_MAX + 1]; // 문자열의 마지막은 NULL이기 때문에 +1
 
 void AsciiArt(void);
@@ -239,6 +240,19 @@ void printAggroStm(int premAggro, int mAggro, int prestm, int stm) // 어그로와 s
 	}
 }
 
+void printcAggro(int precAggro, int cAggro) // 시민 어그로 출력함수
+{
+	if (precAggro != cAggro)
+	{
+		printf("(aggro: %d -> %d)\n", precAggro, cAggro);
+	}
+
+	else
+	{
+		printf("(aggro: %d)\n", cAggro);
+	}
+}
+
 
 
 int main(void)
@@ -266,10 +280,10 @@ int main(void)
 	//3. 열차 이동 phase.
 	int turn = 0;
 	int preStm = stm; // 이전 스테미너 값 저장
-	int cAggro = 1;
+	int cAggro = 1; // 초기 어그로 값
 	int mAggro = 1;
 	int preZloc = zLoc, preCloc = cLoc, preMloc = mLoc; // 이전 위치값 저장 변수
-	int precAggro = cAggro, premAggro = mAggro; // 이전 
+	int precAggro = cAggro, premAggro = mAggro; // 이전 어그로값 저장. 
 	int mMove; // 마동석의 move left or move stay 값을 담는 변수
 	int zombiePull = 0; // 마동석이 action pull 했는지  여부 0 or 1로 저장.
 	int mAction = 0; // 마동석 행동 
@@ -309,12 +323,14 @@ int main(void)
 		//3.2 변화된 시민과 좀비의 위치와 어그로를 기반으로 결과 출력//
 		if (cLoc != preCloc) //사람이 움직였으면
 		{
-			printf("citizen: %d -> %d  (aggro: %d -> %d)\n", preCloc, cLoc, precAggro, cAggro);
+			printf("citizen: %d -> %d ", preCloc, cLoc);
+			printcAggro(precAggro, cAggro);
 		}
 
 		else // 사람이 움직이지 않았으면
 		{
-			printf("citizens : stay %d  (aggro: %d)\n", cLoc, cAggro);
+			printf("citizens : stay %d ", cLoc);
+			printcAggro(precAggro, cAggro);
 		}
 
 		if (zombiePull == 1) // 마동석이 좀비를 당겼으면
@@ -385,7 +401,7 @@ int main(void)
 		//4. 행동 phase 
 
 		// 4.1 시민 행동 phase
-		if (cLoc == 1)
+		if (cLoc == 1) // 시민이 열차 첫번째 같에 도달하면 시민승리
 		{
 			printf("YOU WIN! citizen(s) escaped to the next train!!");
 			break;
