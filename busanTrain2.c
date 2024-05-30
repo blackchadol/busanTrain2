@@ -491,6 +491,7 @@ int main(void)
 					break;
 				}
 			}
+			printf("\n\n");
 
 		}
 
