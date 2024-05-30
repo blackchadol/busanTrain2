@@ -432,7 +432,7 @@ int main(void)
 				else// 마동석 공격
 				{
 					--stm;
-					if (stm <= STM_MIN)
+					if (stm < STM_MIN)
 					{
 						stm = verifyStamina(stm);
 						printf("Zombie attacked madongseok (aggro: %d vs %d, madongseok stamina: %d)\n", cAggro, mAggro, stm);
@@ -458,7 +458,7 @@ int main(void)
 		else if (mLoc - zLoc == 1) // 좀비가 마동석 공격
 		{
 			--stm;
-			if (stm <= STM_MIN)
+			if (stm < STM_MIN)
 			{
 				stm = verifyStamina(stm);
 				printf("Zombie attacked madongseok (madongseok stamina: %d)\n", stm);
